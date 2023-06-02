@@ -1,0 +1,64 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 5fr;
+    height: 100vh;
+    
+}
+
+.header {
+    background-color: lightblue;
+}
+.middle {
+    display: grid;
+    grid-template-areas: 
+        ". alphabet alphabet"
+        "num cont cont"
+        "num cont cont";
+    justify-content: center;
+    place-content: center;
+    
+}
+.alphabet {
+    grid-area: alphabet;
+    display: grid;
+    grid-template-columns: repeat(10,1fr);
+    justify-items: center;
+    font-size: 22px;
+   
+}
+.numbers {
+    grid-area: num;
+    display: grid;
+    justify-items: center;
+    height: 60vh;
+    font-size: 34px;
+    gap: 15px;
+}
+
+.content {
+    grid-area: cont;
+    background-color: gray;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-gap: 0;
+    height: 60vh;
+    width: 70vw;
+    
+
+}
+
+.cell {
+    position: relative;
+    padding-bottom: 0;
+    background-color: white;
+    border: 1px solid black;
+    aspect-ratio: 1/1;
+    /* Ensures a perfect square */
+}
