@@ -15,7 +15,16 @@ body {
 .header {
     background-color: lightblue;
 }
-.middle {
+
+.contentContainer {
+    display: grid;
+    grid-template-areas:
+            "enemysbox . ."
+            ". playersbox ."
+            ". . .";
+}
+.playersBox {
+    grid-area: playersbox;
     display: grid;
     grid-template-areas: 
         ". alphabet alphabet"
@@ -23,6 +32,10 @@ body {
         "num cont cont";
     justify-content: center;
     place-content: center;
+    
+    
+  
+    
     
 }
 .alphabet {
@@ -36,20 +49,29 @@ body {
 .numbers {
     grid-area: num;
     display: grid;
-    justify-items: center;
-    height: 60vh;
-    font-size: 34px;
-    gap: 15px;
+    gap: 7px;
+    align-content: start;
+    place-content: start;
+   
+    font-size: 28px;
+    
+}
+
+.number-cell {
+    align-self: flex-start;
+    justify-self: start;
+    place-self: start;
+    margin-right: 1px;
 }
 
 .content {
     grid-area: cont;
-    background-color: gray;
+    background-color: white;
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     grid-gap: 0;
-    height: 60vh;
-    width: 70vw;
+    height: 45vh;
+    width: 45vw;
     
 
 }
@@ -61,4 +83,45 @@ body {
     border: 1px solid black;
     aspect-ratio: 1/1;
     /* Ensures a perfect square */
+}
+
+.enemysBox {
+    grid-area: enemysbox;
+    display: grid;
+    grid-template-areas:
+        ". alphabet alphabet"
+        "num cont cont"
+        "num cont cont";
+    justify-content: center;
+    place-content: center;
+}
+.content2 {
+    grid-area: cont;
+    background-color: white;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-gap: 0;
+    height: 25vh;
+    width: 25vw;
+
+
+}
+.alphabet2 {
+    grid-area: alphabet;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    justify-items: center;
+    font-size: 12px;
+
+}
+
+.numbers2 {
+    grid-area: num;
+    display: grid;
+    gap: 4.5px;
+    align-content: start;
+    place-content: start;
+
+    font-size: 15px;
+
 }

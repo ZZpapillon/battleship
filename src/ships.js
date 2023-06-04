@@ -27,23 +27,27 @@ const gameBoard = {
     Player1: {
       name: "Player",
       turn: true,
+      arrays: {},
+      missedAttacks: [],
       // other player properties and methods
     },
     Player2: {
       name: "Computer",
       turn: false,
+      arrays: {},
+      missedAttacks: [],
       // other player properties and methods
     },
   },
-  createFields() {
+  createFields(player) {
     for (let index = 0; index < 10; index++) {
       const arrayName = String.fromCharCode(97 + index);
-      this.arrays[arrayName] = [];
+      player.arrays[arrayName] = [];
       for (let number = 1; number < 11; number++) {
-        this.arrays[arrayName].push(number);
+        player.arrays[arrayName].push('');
       }
     }
-    return this.arrays;
+    return player.arrays;
   },
   shipMaker() {
     const carrier = new createShips(5, 0, false);
@@ -78,19 +82,127 @@ const gameBoard = {
       boat4,
     };
   },
-   placingShips(alphabet, num, ship) {
-   const targetArray = this.arrays[alphabet];
-    const shipLength = ship.length;
-    
-    
+placingShips(player, alphabet, num, ship, orientation = 'vertical') {
+  const targetArray = player.arrays[alphabet];
+  const shipLength = ship.length;
 
-    for (let i = 0; i < shipLength; i++) {
-      targetArray[num - 1 + i] = ship
+  // Check if the placement is valid
+  const isPlacementValid = (startIndex, endIndex, array) => {
+    if (orientation === 'vertical') {
+      for (let i = startIndex; i <= endIndex; i++) {
+        if (array[i] !== '') {
+          return false; // Overlapping ship found
+        }
+        
+      }
+    } else if (orientation === 'horizontal') {
+      for (let i = startIndex; i <= endIndex; i++) {
+        const alphabetIndex = String.fromCharCode(i + 97);
+        if (player.arrays[alphabetIndex][num - 1] !== '') {
+          return false; // Overlapping ship found
+        }
+      }
+    }
+    return true; // No overlapping ships found
+  };
+
+  if (orientation === 'vertical') {
+    const startIndex = num - 1;
+    const endIndex = num - 1 + shipLength - 1;
+
+    if (!isPlacementValid(startIndex, endIndex, targetArray)) {
+      throw new Error('Invalid ship placement');
     }
 
-  },
-  receiveAttack(alphabet,num) {
-    const targetArray = this.arrays[alphabet];
+    for (let i = startIndex; i <= endIndex; i++) {
+      targetArray[i] = ship;
+    }
+for (let i = startIndex - 1; i <= endIndex + 1; i++) {
+  const alphabetIndex = String.fromCharCode(alphabet.charCodeAt(0) - 1);
+  const neighborArray = player.arrays[alphabetIndex];
+  if (neighborArray) {
+    if (i >= 0 && i < neighborArray.length) {
+      neighborArray[i] = null;
+    }
+  }
+}
+for (let i = startIndex - 1; i <= endIndex + 1; i++) {
+  const alphabetIndex = String.fromCharCode(alphabet.charCodeAt(0) + 1);
+  const neighborArray = player.arrays[alphabetIndex];
+  if (neighborArray) {
+    if (i >= 0 && i < neighborArray.length) {
+      neighborArray[i] = null;
+    }
+  }
+}
+if (startIndex - 1 >= 0) {
+  targetArray[startIndex - 1] = null;
+}
+
+if (endIndex + 1 < targetArray.length) {
+  targetArray[endIndex + 1] = null;
+}
+
+  } else if (orientation === 'horizontal') {
+    const startIndex = alphabet.charCodeAt(0) - 97;
+    const endIndex = startIndex + shipLength - 1;
+
+    if (!isPlacementValid(startIndex, endIndex, targetArray)) {
+      throw new Error('Invalid ship placement');
+    }
+
+    for (let i = startIndex; i <= endIndex; i++) {
+      const alphabetIndex = String.fromCharCode(i + 97);
+      player.arrays[alphabetIndex][num - 1] = ship;
+    }
+  for (let i = startIndex; i <= endIndex; i++) {
+  const alphabetIndex = String.fromCharCode(i + 97);
+  
+  if (player.arrays.hasOwnProperty(alphabetIndex)) {
+    if (player.arrays[alphabetIndex].hasOwnProperty(num - 2)) {
+      player.arrays[alphabetIndex][num - 2] = null;
+    }
+    
+    if (player.arrays[alphabetIndex].hasOwnProperty(num)) {
+      player.arrays[alphabetIndex][num] = null;
+    }
+  }
+}
+
+ 
+const alphabetIndexLeft = String.fromCharCode(startIndex - 1 + 97);
+const alphabetIndexRight = String.fromCharCode(endIndex + 1 + 97);
+
+
+  if (player.arrays.hasOwnProperty(alphabetIndexLeft)) {
+     if (player.arrays[alphabetIndexLeft].hasOwnProperty(num - 2)) {
+    player.arrays[alphabetIndexLeft][num - 2] = null;
+  }
+     player.arrays[alphabetIndexLeft][num - 1] = null;
+    if (player.arrays[alphabetIndexLeft].hasOwnProperty(num)) {
+    player.arrays[alphabetIndexLeft][num] = null;
+  }
+  }
+
+  if (player.arrays.hasOwnProperty(alphabetIndexRight)) {
+   if (player.arrays[alphabetIndexRight].hasOwnProperty(num - 2)) {
+    player.arrays[alphabetIndexRight][num - 2] = null;
+  }
+    player.arrays[alphabetIndexRight][num - 1] = null;
+   if (player.arrays[alphabetIndexRight].hasOwnProperty(num)) {
+    player.arrays[alphabetIndexRight][num] = null;
+  }
+  }
+  } else {
+    throw new Error('Invalid orientation: choose either "vertical" or "horizontal"');
+  }
+}
+
+
+
+,
+  receiveAttack(player,alphabet,num) {
+    const targetArray = player.arrays[alphabet];
      const element = targetArray[num - 1];
 
   if (typeof element === 'object' && element.hasOwnProperty('hitF')) {
@@ -100,13 +212,13 @@ const gameBoard = {
     this.attackMissed(alphabet, num)
   }
 },
-          attackMissed(alphabet, num) {
-               this.missedAttacks.push(`${alphabet},${num}`);
+          attackMissed(player,alphabet, num) {
+               player.missedAttacks.push(`${alphabet},${num}`);
 
                           },
- areAllShipsSunk() {
-  for (const key in this.arrays) {
-    const array = this.arrays[key];
+ areAllShipsSunk(player) {
+  for (const key in player.arrays) {
+    const array = player.arrays[key];
     for (const element of array) {
       if (typeof element === 'object' && element.hasOwnProperty('sunk') && !element.sunk) {
         return false;
