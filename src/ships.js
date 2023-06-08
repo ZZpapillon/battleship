@@ -1,8 +1,11 @@
-function createShips(length, hit, sunk) {
+
+
+function createShips(length, hit, sunk, name) {
   return {
     length: length,
     hit: hit,
     sunk: sunk,
+    name: name,
     value: 'ship',
     hitF: function() {
       return this.hit++
@@ -20,8 +23,7 @@ function createShips(length, hit, sunk) {
 
 
 const gameBoard = {
-  arrays: {},
-  missedAttacks: [],
+  storedShips: [],
   
   players: {
     Player1: {
@@ -29,6 +31,8 @@ const gameBoard = {
       turn: true,
       arrays: {},
       missedAttacks: [],
+      ships: {},
+     
       // other player properties and methods
     },
     Player2: {
@@ -36,50 +40,71 @@ const gameBoard = {
       turn: false,
       arrays: {},
       missedAttacks: [],
+      ships: {},
       // other player properties and methods
     },
   },
-  createFields(player) {
-    for (let index = 0; index < 10; index++) {
-      const arrayName = String.fromCharCode(97 + index);
-      player.arrays[arrayName] = [];
-      for (let number = 1; number < 11; number++) {
-        player.arrays[arrayName].push('');
-      }
-    }
-    return player.arrays;
-  },
+createFields(player) {
+  const arrays = {};
+
+  for (let index = 0; index < 10; index++) {
+    const arrayName = String.fromCharCode(97 + index);
+    arrays[arrayName] = Array(10).fill("");
+  }
+
+  player.arrays = arrays;
+
+  return arrays;
+}
+,
+resetPlayerArrays(player) {
+  const newArray = {};
+
+  for (const key in player.arrays) {
+    newArray[key] = Array.from(Array(10), () => '1');
+  }
+
+  player.arrays = newArray;
+  
+  return player.arrays;
+}
+
+,
+  
   shipMaker() {
-    const carrier = new createShips(5, 0, false);
-    const battleship = new createShips(4, 0, false);
+    const carrier = new createShips(5, 0, false, 'carrier');
+    const battleship = new createShips(4, 0, false, 'battleship');
     const battleship2 = new createShips(4, 0, false);
-    const cruiser = new createShips(3, 0, false);
-    const cruiser2 = new createShips(3, 0, false);
-    const cruiser3 = new createShips(3, 0, false);
-    const submarine = new createShips(2, 0, false);
-    const submarine2 = new createShips(2, 0, false);
-    const submarine3 = new createShips(2, 0, false);
+    const cruiser = new createShips(3, 0, false, 'cruiser');
+    const cruiser2 = new createShips(3, 0, false, 'cruiser2');
+    const cruiser3 = new createShips(3, 0, false, 'cruiser3');
+    const submarine = new createShips(2, 0, false, 'submarine');
+    const submarine2 = new createShips(2, 0, false,'submarine2');
+    const submarine3 = new createShips(2, 0, false,'submarine3');
     const submarine4 = new createShips(2, 0, false);
-    const boat = new createShips(1, 0, false);
-    const boat2 = new createShips(1, 0, false);
-    const boat3 = new createShips(1, 0, false);
+    const boat = new createShips(1, 0, false,'boat');
+    const boat2 = new createShips(1, 0, false,'boat2');
+    const boat3 = new createShips(1, 0, false,'boat3');
     const boat4 = new createShips(1, 0, false);
     
     return {
       carrier,
       battleship,
-      battleship2,
+      // battleship2,
       cruiser,
       cruiser2,
       cruiser3,
+      
       submarine,
       submarine2,
       submarine3,
-      submarine4,
+      // submarine4,
+      
       boat,
       boat2,
       boat3,
-      boat4,
+      // boat4,
+      
     };
   },
 placingShips(player, alphabet, num, ship, orientation = 'vertical') {
@@ -98,7 +123,7 @@ placingShips(player, alphabet, num, ship, orientation = 'vertical') {
     } else if (orientation === 'horizontal') {
       for (let i = startIndex; i <= endIndex; i++) {
         const alphabetIndex = String.fromCharCode(i + 97);
-        if (player.arrays[alphabetIndex][num - 1] !== '') {
+        if (player.arrays[alphabetIndex][num - 1] !== '' ) {
           return false; // Overlapping ship found
         }
       }
@@ -117,12 +142,18 @@ placingShips(player, alphabet, num, ship, orientation = 'vertical') {
     for (let i = startIndex; i <= endIndex; i++) {
       targetArray[i] = ship;
     }
+
+    
+
+
 for (let i = startIndex - 1; i <= endIndex + 1; i++) {
   const alphabetIndex = String.fromCharCode(alphabet.charCodeAt(0) - 1);
   const neighborArray = player.arrays[alphabetIndex];
   if (neighborArray) {
     if (i >= 0 && i < neighborArray.length) {
       neighborArray[i] = null;
+      
+       
     }
   }
 }
@@ -155,6 +186,9 @@ if (endIndex + 1 < targetArray.length) {
       const alphabetIndex = String.fromCharCode(i + 97);
       player.arrays[alphabetIndex][num - 1] = ship;
     }
+
+   
+    
   for (let i = startIndex; i <= endIndex; i++) {
   const alphabetIndex = String.fromCharCode(i + 97);
   
@@ -200,16 +234,26 @@ const alphabetIndexRight = String.fromCharCode(endIndex + 1 + 97);
 
 
 
+
+
+
+
+
+
+
+
+
+
 ,
   receiveAttack(player,alphabet,num) {
     const targetArray = player.arrays[alphabet];
      const element = targetArray[num - 1];
 
-  if (typeof element === 'object' && element.hasOwnProperty('hitF')) {
+  if (element && typeof element === 'object' && element.hasOwnProperty('hitF')) {
     element.hitF();
     element.isSunk();
   } else {
-    this.attackMissed(alphabet, num)
+    this.attackMissed(player,alphabet, num)
   }
 },
           attackMissed(player,alphabet, num) {
@@ -220,7 +264,7 @@ const alphabetIndexRight = String.fromCharCode(endIndex + 1 + 97);
   for (const key in player.arrays) {
     const array = player.arrays[key];
     for (const element of array) {
-      if (typeof element === 'object' && element.hasOwnProperty('sunk') && !element.sunk) {
+      if (element && typeof element === 'object' && element.hasOwnProperty('sunk') && !element.sunk) {
         return false;
       }
     }
@@ -228,23 +272,6 @@ const alphabetIndexRight = String.fromCharCode(endIndex + 1 + 97);
   return true;
 },
  turnsForAttacks() {
-    if(this.players.Player1.turn === true) {
-        let alphabet, num;
-    let isAlreadyAttacked = true;
-
-    while (isAlreadyAttacked) {
-      // Get user input for attack coordinates, e.g., from event listener
-      // Set `alphabet` and `num` based on user input
-
-      const targetArray = this.arrays[alphabet];
-      const element = targetArray[num - 1];
-      isAlreadyAttacked = typeof element === 'object' && element.hasOwnProperty('hit');
-    }
-        
-        this.receiveAttack(alphabet, num)
-        this.players.Player1.turn = false
-        this.players.Player2.turn = true
-    }
     if (this.players.Player2.turn === true) {
     // Player 2's turn
     let randomAlph, randomNumber;
@@ -255,7 +282,7 @@ const alphabetIndexRight = String.fromCharCode(endIndex + 1 + 97);
       randomAlph = randomValues.char;
       randomNumber = randomValues.number;
 
-      const targetArray = this.arrays[randomAlph];
+      const targetArray = this.player.Player2.arrays[randomAlph];
       const element = targetArray[randomNumber - 1];
       isAlreadyAttacked = typeof element === 'object' && element.hasOwnProperty('hit');
     }

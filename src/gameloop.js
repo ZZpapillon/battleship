@@ -1,22 +1,86 @@
 const { createShips, gameBoard } = require('./ships');
+const { domControl, appendFieldsToPlayer, fieldPlayer, fieldEnemy } = require('./domControl');
 
+function startGame(fieldEnemy, fieldPlayer) {
+  let gameFinished = false;
+  const cellElements = document.querySelectorAll('.cell');
 
-const gameRound = (() => {
+  function handleClick(event) {
+    if (gameFinished) {
+      return; // Ignore clicks if the game is finished
+    }
 
-    // 1. call appendFields to content,which will generate 2 gameboards,
-    //1 yours,1 enemies and it will populate it with random cordinates
-    //2.when clicked start,each player will click when its hes turn
-    //3.game is finished when all ships from 1 gameboard are sunk
-    
-  
-  
-  
+    const cellElement = event.target;
 
- const appendFieldsToContent = () => {
-    
-    
+    if (cellElement.classList.contains('clicked')) {
+      return; // Ignore if the cell has already been clicked
+    }
 
+    cellElement.classList.add('clicked');
+    const clickedArray = cellElement.getAttribute('data-array');
+    const clickedIndex = parseInt(cellElement.getAttribute('data-index'), 10);
 
- }
-  return ;
-})();
+    if (cellElement.classList.contains('ship')) {
+      cellElement.style.backgroundColor = 'red';
+      gameBoard.receiveAttack(fieldPlayer, clickedArray, clickedIndex);
+      if (gameBoard.areAllShipsSunk(fieldPlayer)) {
+        endGame();
+      } else {
+        computerMoves();
+      }
+    } else {
+      cellElement.style.backgroundColor = 'gray';
+      gameBoard.receiveAttack(fieldPlayer, clickedArray, clickedIndex);
+      computerMoves();
+    }
+  }
+
+  function computerMoves() {
+    const cellElements2 = document.querySelectorAll('.cell2');
+    let randomArray, randomIndex;
+    let validMove = false;
+
+    while (!validMove) {
+      const randomValues = gameBoard.generateRandom();
+      randomArray = randomValues.char;
+      randomIndex = randomValues.number;
+
+      const randomCell = document.querySelector(
+        `[data-array2="${randomArray}"][data-index2="${randomIndex}"]`
+      );
+
+      if (!randomCell.classList.contains('clicked')) {
+        validMove = true;
+        randomCell.classList.add('clicked');
+
+        if (randomCell.classList.contains('ship')) {
+          randomCell.style.backgroundColor = 'red';
+        } else {
+          randomCell.style.backgroundColor = 'gray';
+        }
+
+        gameBoard.receiveAttack(fieldEnemy, randomArray, randomIndex);
+        if (gameBoard.areAllShipsSunk(fieldEnemy)) {
+          endGame();
+        }
+      }
+    }
+  }
+
+  function endGame() {
+    gameFinished = true;
+    cellElements.forEach((cellElement) => {
+      cellElement.removeEventListener('click', handleClick);
+    });
+    // Perform necessary actions to end the game
+  }
+
+  // Add click event listeners
+  cellElements.forEach((cellElement) => {
+    cellElement.addEventListener('click', handleClick);
+  });
+}
+
+module.exports = {
+  startGame: startGame
+};

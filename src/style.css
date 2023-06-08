@@ -21,7 +21,10 @@ body {
     grid-template-areas:
             "enemysbox . ."
             ". playersbox ."
-            ". . .";
+            ". . start-button";
+}
+.start-button {
+    grid-area: start-button;
 }
 .playersBox {
     grid-area: playersbox;
@@ -125,3 +128,46 @@ body {
     font-size: 15px;
 
 }
+.cell2 {
+    position: relative;
+    padding-bottom: 0;
+    background-color: white;
+    border: 1px solid black;
+    aspect-ratio: 1/1;
+    /* Ensures a perfect square */
+}
+
+.dragging {
+    opacity: 0.5;
+    border: 2px dashed red;
+}
+.drag-image {
+    border: 2px solid red;
+}
+@keyframes vibrate {
+    0% {
+        transform: translate(-2px, -2px);
+    }
+
+    25% {
+        transform: translate(2px, 2px);
+    }
+
+    50% {
+        transform: translate(-2px, -2px);
+    }
+
+    75% {
+        transform: translate(2px, 2px);
+    }
+
+    100% {
+        transform: translate(-2px, -2px);
+    }
+}
+
+.vibrate {
+    animation: vibrate 0.5s infinite;
+    background-color: red;
+}
+
