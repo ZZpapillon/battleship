@@ -3,7 +3,25 @@ body {
     padding: 0;
     overflow: hidden;
 }
+.fakecontainer {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 5fr;
+    height: 100vh;
 
+}
+.child1 {
+    background-color: lightblue;
+}
+.child2 {
+    background-color: red;
+    display: grid;
+    justify-content: center;
+    place-items: center;
+}
+.startBattleship {
+    background-color: wheat;
+}
 .container {
     display: grid;
     grid-template-columns: 1fr;

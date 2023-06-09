@@ -23,6 +23,33 @@ function startGame(fieldEnemy, fieldPlayer) {
     if (cellElement.classList.contains('ship')) {
       cellElement.style.backgroundColor = 'red';
       gameBoard.receiveAttack(fieldPlayer, clickedArray, clickedIndex);
+      const shipName = cellElement.getAttribute('data-ship-name');
+      const ship = fieldPlayer.ships[shipName];
+
+    if (ship.isSunk()) {
+  console.log(shipName + ' is sunk!');
+  
+  const sunkShipNulls = fieldPlayer.shipNullCells[shipName];
+  
+  if (sunkShipNulls) {
+    for (const coordinate of sunkShipNulls) {
+      const { alphabet, num } = coordinate;
+      const cell = document.querySelector(`[data-array="${alphabet}"][data-index="${num }"]`);
+      
+      if (cell) {
+        if (cell.style.backgroundColor !== 'gray') {
+        cell.style.backgroundColor = 'green';
+        
+        }
+        // cell.classList.remove('ship');
+        cell.removeEventListener('click', handleClick);
+      }
+    }
+  }
+}
+
+
+
       if (gameBoard.areAllShipsSunk(fieldPlayer)) {
         endGame();
       } else {
@@ -53,7 +80,7 @@ function startGame(fieldEnemy, fieldPlayer) {
         validMove = true;
         randomCell.classList.add('clicked');
 
-        if (randomCell.classList.contains('ship')) {
+        if (randomCell.classList.contains('ship2')) {
           randomCell.style.backgroundColor = 'red';
         } else {
           randomCell.style.backgroundColor = 'gray';

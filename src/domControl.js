@@ -26,7 +26,7 @@ const domControl = (() => {
     }
   });
 }
-
+let shipName;
 
  const appendFieldsToPlayer = () => {
   if (!shipsCreated) {
@@ -89,7 +89,7 @@ const domControl = (() => {
   cellElement.textContent = ""; // Delete text content
   
   // Find the ship name associated with the current cell
-    const shipName = Object.keys(fieldPlayer.ships).find((name) => fieldPlayer.ships[name] === array[i]);
+     shipName = Object.keys(fieldPlayer.ships).find((name) => fieldPlayer.ships[name] === array[i]);
 
     // Set the ship name as a data attribute
     cellElement.setAttribute('data-ship-name', shipName)
@@ -479,7 +479,32 @@ cellElements.forEach((cellElement) => {
     shipElements.forEach((shipElement) => {
     shipElement.addEventListener('dblclick', clickHandler);
   });
-    
+  
+     const startButton = document.createElement('button');
+   startButton.textContent = 'Start Game';
+   startButton.classList.add('start-button');
+startButton.addEventListener('click', () => {
+    shipElements.forEach((shipElement) => {
+    shipElement.removeEventListener('dblclick', clickHandler);
+  });
+  cellElements.forEach((cellElement) => {
+  cellElement.removeEventListener('dragover', dragOverHandler);
+  cellElement.removeEventListener('drop', dropHandler);
+
+  const shipElement = cellElement.closest('.ship');
+  if (shipElement) {
+    cellElement.draggable = false;
+    cellElement.removeEventListener('dragstart', dragStartHandler);
+    cellElement.removeEventListener('dragend', dragEndHandler);
+  }
+});
+
+    startGame(fieldEnemy, fieldPlayer);
+  });
+
+
+const contentContainer = document.querySelector('.contentContainer')
+contentContainer.appendChild(startButton)
   };
   
 
@@ -623,18 +648,9 @@ generatePlacedShips(fieldPlayer)
 
 
 
-console.log(gameBoard.storedShips)
+
  
-  const startButton = document.createElement('button');
-   startButton.textContent = 'Start Game';
-startButton.classList.add('start-button');
- startButton.addEventListener('click', () => {
-    startGame(fieldEnemy, fieldPlayer);
-  });
-
-
-const contentContainer = document.querySelector('.contentContainer')
-contentContainer.appendChild(startButton)
+ 
 
   
    return { appendFieldsToPlayer, appendFieldsToEnemy, fieldPlayer, fieldEnemy};

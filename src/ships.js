@@ -32,6 +32,7 @@ const gameBoard = {
       arrays: {},
       missedAttacks: [],
       ships: {},
+      shipNullCells: {},
      
       // other player properties and methods
     },
@@ -41,6 +42,7 @@ const gameBoard = {
       arrays: {},
       missedAttacks: [],
       ships: {},
+      shipNullCells: {},
       // other player properties and methods
     },
   },
@@ -107,9 +109,10 @@ resetPlayerArrays(player) {
       
     };
   },
-placingShips(player, alphabet, num, ship, orientation = 'vertical') {
+ placingShips(player, alphabet, num, ship, orientation = 'vertical') {
   const targetArray = player.arrays[alphabet];
   const shipLength = ship.length;
+  const nullCells = [];
 
   // Check if the placement is valid
   const isPlacementValid = (startIndex, endIndex, array) => {
@@ -118,18 +121,19 @@ placingShips(player, alphabet, num, ship, orientation = 'vertical') {
         if (array[i] !== '') {
           return false; // Overlapping ship found
         }
-        
       }
     } else if (orientation === 'horizontal') {
       for (let i = startIndex; i <= endIndex; i++) {
         const alphabetIndex = String.fromCharCode(i + 97);
-        if (player.arrays[alphabetIndex][num - 1] !== '' ) {
+        if (player.arrays[alphabetIndex][num - 1] !== '') {
           return false; // Overlapping ship found
         }
       }
     }
     return true; // No overlapping ships found
   };
+
+
 
   if (orientation === 'vertical') {
     const startIndex = num - 1;
@@ -143,37 +147,33 @@ placingShips(player, alphabet, num, ship, orientation = 'vertical') {
       targetArray[i] = ship;
     }
 
-    
-
-
-for (let i = startIndex - 1; i <= endIndex + 1; i++) {
-  const alphabetIndex = String.fromCharCode(alphabet.charCodeAt(0) - 1);
-  const neighborArray = player.arrays[alphabetIndex];
-  if (neighborArray) {
-    if (i >= 0 && i < neighborArray.length) {
-      neighborArray[i] = null;
-      
-       
+    for (let i = startIndex - 1; i <= endIndex + 1; i++) {
+      const alphabetIndex = String.fromCharCode(alphabet.charCodeAt(0) - 1);
+      const neighborArray = player.arrays[alphabetIndex];
+      if (neighborArray && i >= 0 && i < neighborArray.length) {
+        neighborArray[i] = null;
+        nullCells.push({ alphabet: alphabetIndex, num: i + 1 });
+      }
     }
-  }
-}
-for (let i = startIndex - 1; i <= endIndex + 1; i++) {
-  const alphabetIndex = String.fromCharCode(alphabet.charCodeAt(0) + 1);
-  const neighborArray = player.arrays[alphabetIndex];
-  if (neighborArray) {
-    if (i >= 0 && i < neighborArray.length) {
-      neighborArray[i] = null;
+
+    for (let i = startIndex - 1; i <= endIndex + 1; i++) {
+      const alphabetIndex = String.fromCharCode(alphabet.charCodeAt(0) + 1);
+      const neighborArray = player.arrays[alphabetIndex];
+      if (neighborArray && i >= 0 && i < neighborArray.length) {
+        neighborArray[i] = null;
+        nullCells.push({ alphabet: alphabetIndex, num: i + 1 });
+      }
     }
-  }
-}
-if (startIndex - 1 >= 0) {
-  targetArray[startIndex - 1] = null;
-}
 
-if (endIndex + 1 < targetArray.length) {
-  targetArray[endIndex + 1] = null;
-}
+    if (startIndex - 1 >= 0) {
+      targetArray[startIndex - 1] = null;
+      nullCells.push({ alphabet, num: startIndex });
+    }
 
+    if (endIndex + 1 < targetArray.length) {
+      targetArray[endIndex + 1] = null;
+      nullCells.push({ alphabet, num: endIndex + 2 });
+    }
   } else if (orientation === 'horizontal') {
     const startIndex = alphabet.charCodeAt(0) - 97;
     const endIndex = startIndex + shipLength - 1;
@@ -187,50 +187,59 @@ if (endIndex + 1 < targetArray.length) {
       player.arrays[alphabetIndex][num - 1] = ship;
     }
 
-   
-    
-  for (let i = startIndex; i <= endIndex; i++) {
-  const alphabetIndex = String.fromCharCode(i + 97);
-  
-  if (player.arrays.hasOwnProperty(alphabetIndex)) {
-    if (player.arrays[alphabetIndex].hasOwnProperty(num - 2)) {
-      player.arrays[alphabetIndex][num - 2] = null;
+    for (let i = startIndex; i <= endIndex; i++) {
+      const alphabetIndex = String.fromCharCode(i + 97);
+
+      if (player.arrays.hasOwnProperty(alphabetIndex)) {
+        if (player.arrays[alphabetIndex].hasOwnProperty(num - 2)) {
+          player.arrays[alphabetIndex][num - 2] = null;
+          nullCells.push({ alphabet: alphabetIndex, num: num - 1 });
+        }
+
+        if (player.arrays[alphabetIndex].hasOwnProperty(num)) {
+          player.arrays[alphabetIndex][num] = null;
+          nullCells.push({ alphabet: alphabetIndex, num: num + 1 });
+        }
+      }
     }
-    
-    if (player.arrays[alphabetIndex].hasOwnProperty(num)) {
-      player.arrays[alphabetIndex][num] = null;
+
+    const alphabetIndexLeft = String.fromCharCode(startIndex - 1 + 97);
+    const alphabetIndexRight = String.fromCharCode(endIndex + 1 + 97);
+
+    if (player.arrays.hasOwnProperty(alphabetIndexLeft)) {
+      if (player.arrays[alphabetIndexLeft].hasOwnProperty(num - 2)) {
+        player.arrays[alphabetIndexLeft][num - 2] = null;
+        nullCells.push({ alphabet: alphabetIndexLeft, num: num - 1 });
+      }
+      player.arrays[alphabetIndexLeft][num - 1] = null;
+       nullCells.push({ alphabet: alphabetIndexLeft, num: num  });
+      if (player.arrays[alphabetIndexLeft].hasOwnProperty(num)) {
+        player.arrays[alphabetIndexLeft][num] = null;
+        nullCells.push({ alphabet: alphabetIndexLeft, num: num + 1 });
+      }
     }
-  }
-}
 
- 
-const alphabetIndexLeft = String.fromCharCode(startIndex - 1 + 97);
-const alphabetIndexRight = String.fromCharCode(endIndex + 1 + 97);
-
-
-  if (player.arrays.hasOwnProperty(alphabetIndexLeft)) {
-     if (player.arrays[alphabetIndexLeft].hasOwnProperty(num - 2)) {
-    player.arrays[alphabetIndexLeft][num - 2] = null;
-  }
-     player.arrays[alphabetIndexLeft][num - 1] = null;
-    if (player.arrays[alphabetIndexLeft].hasOwnProperty(num)) {
-    player.arrays[alphabetIndexLeft][num] = null;
-  }
-  }
-
-  if (player.arrays.hasOwnProperty(alphabetIndexRight)) {
-   if (player.arrays[alphabetIndexRight].hasOwnProperty(num - 2)) {
-    player.arrays[alphabetIndexRight][num - 2] = null;
-  }
-    player.arrays[alphabetIndexRight][num - 1] = null;
-   if (player.arrays[alphabetIndexRight].hasOwnProperty(num)) {
-    player.arrays[alphabetIndexRight][num] = null;
-  }
-  }
+    if (player.arrays.hasOwnProperty(alphabetIndexRight)) {
+      if (player.arrays[alphabetIndexRight].hasOwnProperty(num - 2)) {
+        player.arrays[alphabetIndexRight][num - 2] = null;
+        nullCells.push({ alphabet: alphabetIndexRight, num: num - 1 });
+      }
+      player.arrays[alphabetIndexRight][num - 1] = null;
+      nullCells.push({ alphabet: alphabetIndexRight, num: num })
+      if (player.arrays[alphabetIndexRight].hasOwnProperty(num)) {
+        player.arrays[alphabetIndexRight][num] = null;
+        nullCells.push({ alphabet: alphabetIndexRight, num: num + 1 });
+      }
+    }
   } else {
     throw new Error('Invalid orientation: choose either "vertical" or "horizontal"');
   }
+
+  player.shipNullCells[ship.name] = nullCells;
+  
+  
 }
+
 
 
 
