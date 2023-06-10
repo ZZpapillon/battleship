@@ -3,7 +3,15 @@ const { startGame} = require('./gameloop');
 
 const domControl = (() => {
   
- 
+  const enemysBox = document.querySelector('.enemysBox')
+
+
+  const startButton = document.createElement('button');
+   startButton.textContent = 'Start Game';
+   startButton.classList.add('start-button');
+   const contentContainer = document.querySelector('.contentContainer')
+   contentContainer.appendChild(startButton)
+
 
   const fieldPlayer = gameBoard.players.Player1
   const fieldEnemy = gameBoard.players.Player2
@@ -15,6 +23,7 @@ const domControl = (() => {
   // fieldPlayer.ships = gameBoard.shipMaker()
   gameBoard.createFields(fieldPlayer)
  let shipsCreated = false
+ 
 
 
  function resetArrays() {
@@ -480,10 +489,13 @@ cellElements.forEach((cellElement) => {
     shipElement.addEventListener('dblclick', clickHandler);
   });
   
-     const startButton = document.createElement('button');
-   startButton.textContent = 'Start Game';
-   startButton.classList.add('start-button');
-startButton.addEventListener('click', () => {
+  
+   
+   
+  
+
+
+   startButton.addEventListener('click', () => {
     shipElements.forEach((shipElement) => {
     shipElement.removeEventListener('dblclick', clickHandler);
   });
@@ -498,13 +510,22 @@ startButton.addEventListener('click', () => {
     cellElement.removeEventListener('dragend', dragEndHandler);
   }
 });
-
+    changeLayout()
+    startButton.remove()
     startGame(fieldEnemy, fieldPlayer);
+    
   });
+  
+  function changeLayout() {
+    enemysBox.style.display = 'grid'
+    contentContainer.style.setProperty('--blur', 'none');
+    contentContainer.classList.add('new-layout');
+    content.classList.add('new-layout')
+    playersBox.classList.add('new-layout');
+    alphabetRow.classList.add('new-layout')
+    numbersRow.classList.add('new-layout')
+  }
 
-
-const contentContainer = document.querySelector('.contentContainer')
-contentContainer.appendChild(startButton)
   };
   
 
@@ -537,6 +558,13 @@ contentContainer.appendChild(startButton)
   cellElement.classList.add('ship2');
   cellElement.style.backgroundColor = "lightblue";
   cellElement.textContent = ""; // Delete text content
+
+  // Find the ship name associated with the current cell
+     shipName = Object.keys(fieldEnemy.ships).find((name) => fieldEnemy.ships[name] === array[i]);
+
+    // Set the ship name as a data attribute
+    cellElement.setAttribute('data-ship-name', shipName)
+
 }
         
         // Append the cell element to the row element
