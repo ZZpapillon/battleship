@@ -8,6 +8,9 @@ module.exports = {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
   },
+  experiments: {
+    outputModule: true, // Enable the outputModule experiment
+  },
   module: {
     rules: [
       {
@@ -40,3 +43,4 @@ module.exports = {
     }),
   ],
 };
+

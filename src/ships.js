@@ -24,7 +24,7 @@ function createShips(length, hit, sunk, name) {
 
 const gameBoard = {
   storedShips: [],
-  
+  gameModePvp: false,
   players: {
     Player1: {
       name: "Player",
@@ -311,7 +311,14 @@ resetPlayerArrays(player) {
 
 };
 
+const startButton = (function() {
+  const button = document.createElement('button');
+  button.textContent = 'Start Game';
+  button.classList.add('start-button');
+  return button;
+})();
 module.exports = {
   createShips: createShips,
   gameBoard: gameBoard,
+  startButton: startButton
 };
