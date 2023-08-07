@@ -498,7 +498,7 @@ cellElements.forEach((cellElement) => {
    startButton.addEventListener('click', () => {
     shipElements.forEach((shipElement) => {
     shipElement.removeEventListener('dblclick', clickHandler);
-    // shipElement.style.backgroundColor = 'transparent'
+    shipElement.style.backgroundColor = 'transparent'
   });
   cellElements.forEach((cellElement) => {
   cellElement.removeEventListener('dragover', dragOverHandler);
@@ -945,6 +945,7 @@ shipElements.forEach((shipElement) => {
   startButton.addEventListener('click', () => {
     shipElements.forEach((shipElement) => {
     shipElement.removeEventListener('dblclick', clickHandler);
+    shipElement.style.backgroundColor = 'transparent'
   });
   cellElements.forEach((cellElement) => {
   cellElement.removeEventListener('dragover', dragOverHandler);

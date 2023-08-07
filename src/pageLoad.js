@@ -48,7 +48,7 @@ playButton.addEventListener('click', () => {
 
    const friendlyWatersText = document.createElement('div')
   friendlyWatersText.classList.add('watersText')
-  friendlyWatersText.textContent = 'FRIENDLY WATERS:';
+  friendlyWatersText.textContent = 'YOUR WATERS:';
 
   const enemyWaters = document.createElement('div');
   enemyWaters.classList.add('enemy-waters');
